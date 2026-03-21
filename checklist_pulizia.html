@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Partenza · Mazal 23</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm-white: #FDFBF7;
+    --ink: #1C1A17;
+    --gold: #C9A96E;
+    --muted: #8A8070;
+    --green: #4A7C59;
+    --green-bg: #EAF2EC;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --border: #E2DAC8;
+    --tacito-bg: #FDF7EE;
+    --tacito-header: #F0E0C0;
+    --adriana-bg: #EEF3FD;
+    --adriana-header: #C8D8F8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 1.5rem 0.75rem 4rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    line-height: 1.1;
+  }
+  .header h1 span { color: var(--gold); }
+  .header-line { width: 50px; height: 2px; background: var(--gold); margin: 0.8rem auto 0; }
+
+  .progress-wrap {
+    max-width: 960px;
+    margin: 0 auto 1.75rem;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .progress-bar-bg { flex: 1; height: 7px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
+  .progress-count { font-size: 0.8rem; font-weight: 600; color: var(--ink); white-space: nowrap; }
+
+  /* SCROLL CONTAINER */
+  .table-scroll {
+    max-width: 960px;
+    margin: 0 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--warm-white);
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  /* MACRO HEADER */
+  .row-macro th {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .th-empty { background: var(--warm-white); border-right: 1px solid var(--border); width: 38vw; max-width: 200px; min-width: 110px; }
+  .th-tacito { background: var(--tacito-header); color: #7A5010; border-right: 2px solid var(--border); }
+  .th-adriana { background: var(--adriana-header); color: #1A3880; }
+
+  /* STANZA HEADER */
+  .row-stanza th {
+    padding: 0.4rem 0.2rem 0.45rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .th-stanza-empty {
+    background: var(--warm-white);
+    border-right: 1px solid var(--border);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 0.75rem;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+  }
+  .th-stanza {
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-right: 1px solid var(--border);
+    width: calc((62vw - 2px) / 6);
+    max-width: 100px;
+    min-width: 52px;
+  }
+  .th-stanza:last-child { border-right: none; }
+  .th-stanza.tacito { background: var(--tacito-bg); color: #7A5010; }
+  .th-stanza.adriana { background: var(--adriana-bg); color: #1A3880; }
+
+  .stanza-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  /* DATA ROWS */
+  tr.data-row { border-bottom: 1px solid var(--border); }
+  tr.data-row:last-child { border-bottom: none; }
+
+  td.td-label {
+    padding: 0 0.75rem;
+    font-size: 0.78rem;
+    color: var(--ink);
+    height: 54px;
+    border-right: 1px solid var(--border);
+    line-height: 1.3;
+    vertical-align: middle;
+    background: var(--warm-white);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 2px 0 4px -2px rgba(0,0,0,0.06);
+  }
+
+  td.td-cell {
+    border-right: 1px solid var(--border);
+    vertical-align: middle;
+    cursor: pointer;
+    transition: filter 0.15s;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  td.td-cell:last-child { border-right: none; }
+  td.td-cell.tacito { background: var(--tacito-bg); }
+  td.td-cell.adriana { background: var(--adriana-bg); }
+  td.td-cell:active { filter: brightness(0.88); }
+
+  .cell-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.45rem 0.15rem;
+    height: 54px;
+  }
+
+  .cell-check {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 900;
+    color: white;
+  }
+  /* fresh = green ✓ */
+  td.done .cell-check { background: var(--green); }
+  /* stale = red ✗ */
+  td.stale .cell-check { background: var(--red); }
+
+  .cell-date {
+    font-size: 0.57rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+    min-height: 1.3em;
+    letter-spacing: 0.01em;
+  }
+  td.done .cell-date { color: var(--green); }
+  td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">Mazal 23 · Hospitality</div>
+  <h1>Checklist <span>Partenza</span></h1>
+  <div class="header-line"></div>
+</div>
+
+<div class="progress-wrap">
+  <span class="progress-label">Stanze ok</span>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <span class="progress-count" id="progressCount">— / 6</span>
+</div>
+<div style="max-width:960px;margin:-1rem auto 1.5rem;text-align:right;padding:0 0.75rem;">
+  <span id="syncStatus" style="font-size:0.7rem;color:var(--muted);">⟳ Connessione…</span>
+</div>
+
+<div class="table-scroll">
+<table>
+  <thead>
+    <tr class="row-macro">
+      <th class="th-empty" rowspan="1"></th>
+      <th class="th-tacito" colspan="4">Tacito 23</th>
+      <th class="th-adriana" colspan="2">Adriana 5</th>
+    </tr>
+    <tr class="row-stanza" id="stanzaHeaderRow">
+      <th class="th-stanza-empty">Voce</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAZMQnJ6Cp8KbBJU_knZS3X3nQ_v2XgTKGgp51JC5prhaRcrZmyovzuuXNLaSSZd6G/exec";
+const DEFAULT_TS = new Date(2025, 2, 14).getTime(); // 14 marzo 2025
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+const ITEMS = [
+  "Bordo finestra",
+  "Capelli/macchie sul suolo",
+  "Carta igienica",
+  "Coperta di riserva",
+  "Cuscini di riserva",
+  "Luci funzionanti",
+  "Macchie su muri",
+  "Polvere bordo letto",
+  "Polvere sopra porte",
+  "Polvere su ripiani",
+  "Polvere termosifone",
+  "Pulizia caffè/bollitore",
+  "Pulizia finestre",
+  "Pulizia intorno armadio",
+  "Ragnatele angoli",
+  "Sovracoperte",
+];
+
+const STANZE = [
+  { id: "t1", label: "1",  cls: "tacito"  },
+  { id: "t2", label: "2",  cls: "tacito"  },
+  { id: "t3", label: "3",  cls: "tacito"  },
+  { id: "t4", label: "4",  cls: "tacito"  },
+  { id: "a1", label: "A1", cls: "adriana" },
+  { id: "a2", label: "A2", cls: "adriana" },
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+// state[stanzaId][itemIndex] = { ts: timestamp }
+let state = {};
+
+function initStateDefaults() {
+  STANZE.forEach(st => {
+    if (!state[st.id]) state[st.id] = {};
+    ITEMS.forEach((_, i) => {
+      if (state[st.id][i] === undefined) state[st.id][i] = { ts: DEFAULT_TS };
+    });
+  });
+}
+
+// ── GOOGLE SHEETS ────────────────────────────────────────────────────────────
+function showStatus(msg, isError) {
+  const el = document.getElementById("syncStatus");
+  el.textContent = msg;
+  el.style.color = isError ? "var(--red)" : "var(--muted)";
+}
+
+async function loadFromSheet() {
+  showStatus("⟳ Caricamento…", false);
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=read`, { mode: "cors" });
+    const rows = await res.json(); // [[stanza, item, ts], ...]
+    rows.forEach(row => {
+      const [stId, item, ts] = row;
+      const i = ITEMS.indexOf(item);
+      if (i === -1 || !STANZE.find(s => s.id === stId)) return;
+      if (!state[stId]) state[stId] = {};
+      state[stId][i] = { ts: Number(ts) };
+    });
+    initStateDefaults();
+    showStatus("✓ Sincronizzato", false);
+  } catch(e) {
+    initStateDefaults();
+    showStatus("⚠ Offline — dati locali", true);
+  }
+}
+
+async function writeToSheet(stId, itemIdx, ts) {
+  const item = ITEMS[itemIdx];
+  const url = `${APPS_SCRIPT_URL}?action=write&stanza=${encodeURIComponent(stId)}&item=${encodeURIComponent(item)}&ts=${ts}`;
+  try {
+    await fetch(url, { mode: "cors" });
+    showStatus("✓ Salvato", false);
+  } catch(e) {
+    showStatus("⚠ Errore salvataggio", true);
+  }
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function isStale(c) { return c.ts && (Date.now() - c.ts) > ONE_WEEK_MS; }
+
+function formatDate(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+
+function getCellEl(stId, i) { return document.getElementById(`c_${stId}_${i}`); }
+
+function refreshCell(stId, i) {
+  const td = getCellEl(stId, i);
+  if (!td) return;
+  const c = state[stId][i];
+  const st = STANZE.find(s => s.id === stId);
+  const stale = isStale(c);
+  td.className = `td-cell ${st.cls} done${stale ? " stale" : ""}`;
+  td.querySelector(".cell-check").textContent = stale ? "✕" : "✓";
+  td.querySelector(".cell-date").textContent = formatDate(c.ts);
+}
+
+// ── INTERACTIONS ─────────────────────────────────────────────────────────────
+function tapCell(stId, i) {
+  const ts = Date.now();
+  state[stId][i].ts = ts;
+  refreshCell(stId, i);
+  updateProgress();
+  writeToSheet(stId, i, ts);
+}
+
+function resetStanza(stId) {
+  ITEMS.forEach((_, i) => {
+    state[stId][i] = { ts: DEFAULT_TS };
+    writeToSheet(stId, i, DEFAULT_TS);
+  });
+  ITEMS.forEach((_, i) => refreshCell(stId, i));
+  updateProgress();
+}
+
+// ── UI UPDATES ───────────────────────────────────────────────────────────────
+function updateProgress() {
+  const okStanze = STANZE.filter(st =>
+    ITEMS.every((_, i) => !isStale(state[st.id][i]))
+  ).length;
+  const total = STANZE.length;
+  const pct = Math.round(okStanze / total * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressCount").textContent = `${okStanze} / ${total} stanze ok`;
+}
+
+function refreshAll() {
+  STANZE.forEach(st => ITEMS.forEach((_, i) => refreshCell(st.id, i)));
+  updateProgress();
+}
+
+// ── BUILD DOM ────────────────────────────────────────────────────────────────
+function build() {
+  const hrow = document.getElementById("stanzaHeaderRow");
+  STANZE.forEach(st => {
+    const th = document.createElement("th");
+    th.className = `th-stanza ${st.cls}`;
+    th.innerHTML = `<div class="stanza-name-row">${st.label}</div>`;
+    hrow.appendChild(th);
+  });
+
+  const tbody = document.getElementById("tableBody");
+  ITEMS.forEach((item, i) => {
+    const tr = document.createElement("tr");
+    tr.className = "data-row";
+    const tdLabel = document.createElement("td");
+    tdLabel.className = "td-label";
+    tdLabel.textContent = item;
+    tr.appendChild(tdLabel);
+    STANZE.forEach(st => {
+      const c = state[st.id][i];
+      const stale = isStale(c);
+      const td = document.createElement("td");
+      td.id = `c_${st.id}_${i}`;
+      td.className = `td-cell ${st.cls} done${stale ? " stale" : ""}`;
+      td.innerHTML = `
+        <div class="cell-inner">
+          <div class="cell-check">${stale ? "✕" : "✓"}</div>
+          <div class="cell-date">${formatDate(c.ts)}</div>
+        </div>
+      `;
+      td.addEventListener("click", () => tapCell(st.id, i));
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+setInterval(refreshAll, 60000);
+
+(async () => {
+  initStateDefaults();
+  build();
+  updateProgress();
+  await loadFromSheet();
+  refreshAll();
+})();
+</script>
+</body>
+</html>
