@@ -3,337 +3,398 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Partenza · Mazal 23</title>
+<title>Operativo Pulizie · Mazal 23</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #F5F0E8;
-    --warm-white: #FDFBF7;
-    --ink: #1C1A17;
-    --gold: #C9A96E;
-    --muted: #8A8070;
-    --green: #4A7C59;
-    --green-bg: #EAF2EC;
-    --red: #C0392B;
-    --red-bg: #FDECEA;
-    --border: #E2DAC8;
-    --tacito-bg: #FDF7EE;
-    --tacito-header: #F0E0C0;
-    --adriana-bg: #EEF3FD;
-    --adriana-header: #C8D8F8;
-  }
+:root {
+  --cream: #F5F0E8;
+  --warm-white: #FDFBF7;
+  --ink: #1C1A17;
+  --gold: #C9A96E;
+  --muted: #8A8070;
+  --green: #4A7C59;
+  --green-light: #EAF2EC;
+  --amber: #D4820A;
+  --amber-light: #FEF3DC;
+  --red: #C0392B;
+  --red-light: #FDECEA;
+  --border: #E2DAC8;
+  --tacito-bg: #FDF7EE;
+  --tacito-header: #F0E0C0;
+  --adriana-bg: #EEF3FD;
+  --adriana-header: #C8D8F8;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    background: var(--cream);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--ink);
-    min-height: 100vh;
-    padding: 1.5rem 0.75rem 4rem;
-  }
+body {
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 1.5rem 0.75rem 5rem;
+}
 
-  .header {
-    text-align: center;
-    margin-bottom: 1.75rem;
-  }
-  .header-label {
-    font-size: 0.68rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.4rem;
-  }
-  .header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.8rem, 5vw, 2.6rem);
-    line-height: 1.1;
-  }
-  .header h1 span { color: var(--gold); }
-  .header-line { width: 50px; height: 2px; background: var(--gold); margin: 0.8rem auto 0; }
+/* ── HEADER ── */
+.header { text-align: center; margin-bottom: 2rem; }
+.header-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+.header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+.header h1 span { color: var(--gold); }
+.header-line { width: 50px; height: 2px; background: var(--gold); margin: 0.7rem auto 0; }
 
-  .progress-wrap {
-    max-width: 960px;
-    margin: 0 auto 1.75rem;
-    background: var(--warm-white);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.9rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-  .progress-bar-bg { flex: 1; height: 7px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
-  .progress-count { font-size: 0.8rem; font-weight: 600; color: var(--ink); white-space: nowrap; }
+/* ── SYNC ── */
+.sync-row { max-width: 700px; margin: 0 auto 1.5rem; text-align: right; }
+#syncStatus { font-size: 0.68rem; color: var(--muted); }
 
-  /* SCROLL CONTAINER */
-  .table-scroll {
-    max-width: 960px;
-    margin: 0 auto;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--warm-white);
-  }
+/* ── SECTION CARD (dashboard bar) ── */
+.section-card {
+  max-width: 700px;
+  margin: 0 auto 1rem;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.section-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
 
-  /* TABLE */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
+.card-header {
+  padding: 1rem 1.25rem 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  /* MACRO HEADER */
-  .row-macro th {
-    padding: 0.5rem 0.25rem;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-  .th-empty { background: var(--warm-white); border-right: 1px solid var(--border); width: 38vw; max-width: 200px; min-width: 110px; }
-  .th-tacito { background: var(--tacito-header); color: #7A5010; border-right: 2px solid var(--border); }
-  .th-adriana { background: var(--adriana-header); color: #1A3880; }
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+.card-title-group { display: flex; align-items: center; gap: 0.6rem; }
+.card-icon { font-size: 1.1rem; flex-shrink: 0; }
+.card-title { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.card-freq { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.18rem 0.55rem; border-radius: 99px; flex-shrink: 0; }
+.freq-weekly { background: #EEF3FD; color: #1A3880; }
+.freq-monthly { background: var(--tacito-header); color: #7A5010; }
 
-  /* STANZA HEADER */
-  .row-stanza th {
-    padding: 0.4rem 0.2rem 0.45rem;
-    text-align: center;
-    border-bottom: 2px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 5;
-  }
-  .th-stanza-empty {
-    background: var(--warm-white);
-    border-right: 1px solid var(--border);
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 600;
-    text-align: left;
-    padding-left: 0.75rem;
-    position: sticky;
-    left: 0;
-    z-index: 10;
-  }
-  .th-stanza {
-    font-size: 0.78rem;
-    font-weight: 700;
-    border-right: 1px solid var(--border);
-    width: calc((62vw - 2px) / 6);
-    max-width: 100px;
-    min-width: 52px;
-  }
-  .th-stanza:last-child { border-right: none; }
-  .th-stanza.tacito { background: var(--tacito-bg); color: #7A5010; }
-  .th-stanza.adriana { background: var(--adriana-bg); color: #1A3880; }
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.card-age {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.age-ok { color: var(--green); }
+.age-warn { color: var(--amber); }
+.age-late { color: var(--red); }
+.age-empty { color: var(--muted); }
 
-  .stanza-name-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 0.4rem 0.2rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
+.toggle-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+.toggle-btn.open { background: var(--ink); border-color: var(--ink); color: white; }
 
-  /* DATA ROWS */
-  tr.data-row { border-bottom: 1px solid var(--border); }
-  tr.data-row:last-child { border-bottom: none; }
+/* Progress bar inside card */
+.card-bar-wrap { position: relative; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.card-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.bar-ok    { background: linear-gradient(90deg, #6BBF8A, var(--green)); }
+.bar-warn  { background: linear-gradient(90deg, #F5C842, var(--amber)); }
+.bar-late  { background: linear-gradient(90deg, #E87060, var(--red)); }
+.bar-empty { background: var(--border); }
 
-  td.td-label {
-    padding: 0 0.75rem;
-    font-size: 0.78rem;
-    color: var(--ink);
-    height: 54px;
-    border-right: 1px solid var(--border);
-    line-height: 1.3;
-    vertical-align: middle;
-    background: var(--warm-white);
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    box-shadow: 2px 0 4px -2px rgba(0,0,0,0.06);
-  }
+.card-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 0.45rem;
+  min-height: 1em;
+}
+.sub-warn { color: var(--red); font-weight: 600; }
 
-  td.td-cell {
-    border-right: 1px solid var(--border);
-    vertical-align: middle;
-    cursor: pointer;
-    transition: filter 0.15s;
-    user-select: none;
-    touch-action: manipulation;
-  }
-  td.td-cell:last-child { border-right: none; }
-  td.td-cell.tacito { background: var(--tacito-bg); }
-  td.td-cell.adriana { background: var(--adriana-bg); }
-  td.td-cell:active { filter: brightness(0.88); }
+/* ── CHECKLIST PANEL ── */
+.checklist-panel {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: var(--warm-white);
+}
+.checklist-panel.open { display: block; }
 
-  .cell-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.2rem;
-    padding: 0.45rem 0.15rem;
-    height: 54px;
-  }
+/* Table */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-  .cell-check {
-    width: 26px; height: 26px;
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    font-size: 14px;
-    font-weight: 900;
-    color: white;
-  }
-  /* fresh = green ✓ */
-  td.done .cell-check { background: var(--green); }
-  /* stale = red ✗ */
-  td.stale .cell-check { background: var(--red); }
+/* Macro header */
+.row-macro th {
+  padding: 0.45rem 0.25rem;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  text-align: center; border-bottom: 1px solid var(--border);
+}
+.th-empty { background: var(--warm-white); border-right: 1px solid var(--border); width: 38vw; max-width: 190px; min-width: 100px; }
+.th-tacito { background: var(--tacito-header); color: #7A5010; border-right: 2px solid var(--border); }
+.th-adriana { background: var(--adriana-header); color: #1A3880; }
+.th-comune-tacito { background: var(--tacito-header); color: #7A5010; }
+.th-comune-adriana { background: var(--adriana-header); color: #1A3880; }
 
-  .cell-date {
-    font-size: 0.57rem;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.2;
-    min-height: 1.3em;
-    letter-spacing: 0.01em;
-  }
-  td.done .cell-date { color: var(--green); }
-  td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
+/* Stanza header */
+.row-stanza th {
+  padding: 0.4rem 0.2rem;
+  text-align: center; border-bottom: 2px solid var(--border);
+  font-size: 0.76rem; font-weight: 700;
+  position: sticky; top: 0; z-index: 5;
+}
+.th-stanza-empty {
+  background: var(--warm-white); border-right: 1px solid var(--border);
+  font-size: 0.58rem; color: var(--muted); letter-spacing: 0.08em;
+  text-transform: uppercase; font-weight: 600; text-align: left; padding-left: 0.75rem;
+  position: sticky; left: 0; z-index: 10;
+}
+.th-stanza { border-right: 1px solid var(--border); }
+.th-stanza:last-child { border-right: none; }
+.th-stanza.tacito { background: var(--tacito-bg); color: #7A5010; }
+.th-stanza.adriana { background: var(--adriana-bg); color: #1A3880; }
+.th-stanza.comune { background: #F7F7F2; color: var(--ink); }
+
+/* Data rows */
+tr.data-row { border-bottom: 1px solid var(--border); }
+tr.data-row:last-child { border-bottom: none; }
+
+td.td-label {
+  padding: 0 0.75rem; font-size: 0.78rem; height: 52px;
+  border-right: 1px solid var(--border); line-height: 1.3; vertical-align: middle;
+  background: var(--warm-white); position: sticky; left: 0; z-index: 2;
+  box-shadow: 2px 0 4px -2px rgba(0,0,0,0.06);
+}
+td.td-label.highlight-row { background: #FFF8EE; }
+
+td.td-cell {
+  border-right: 1px solid var(--border); vertical-align: middle;
+  cursor: pointer; user-select: none; touch-action: manipulation;
+  transition: filter 0.15s;
+}
+td.td-cell:last-child { border-right: none; }
+td.td-cell.tacito { background: var(--tacito-bg); }
+td.td-cell.adriana { background: var(--adriana-bg); }
+td.td-cell.comune { background: #F7F7F2; }
+td.td-cell:active { filter: brightness(0.88); }
+
+/* Highlight stale column */
+td.td-cell.needs-attention { outline: 2px solid var(--red); outline-offset: -2px; }
+
+.cell-inner {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.18rem; padding: 0.4rem 0.15rem; height: 52px;
+}
+.cell-check {
+  width: 24px; height: 24px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0; font-size: 13px; font-weight: 900; color: white;
+}
+td.done .cell-check { background: var(--green); }
+td.stale .cell-check { background: var(--red); }
+td.empty-cell .cell-check {
+  background: transparent; border: 2px solid var(--border);
+  color: var(--border); font-size: 10px;
+}
+
+.cell-date { font-size: 0.55rem; color: var(--muted); text-align: center; line-height: 1.2; min-height: 1.2em; }
+td.done .cell-date { color: var(--green); }
+td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
+
+/* Panel footer */
+.panel-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.reset-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500;
+  color: var(--muted); border: 1.5px solid var(--border); background: transparent;
+  border-radius: 99px; padding: 0.4rem 1.25rem; cursor: pointer; transition: all 0.2s;
+  touch-action: manipulation;
+}
+.reset-btn:hover, .reset-btn:active { color: var(--red); border-color: var(--red); background: var(--red-light); }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="header-label">Mazal 23 · Hospitality</div>
-  <h1>Checklist <span>Partenza</span></h1>
+  <h1>Operativo <span>Pulizie</span></h1>
   <div class="header-line"></div>
 </div>
 
-<div class="progress-wrap">
-  <span class="progress-label">Stanze ok</span>
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-  <span class="progress-count" id="progressCount">— / 6</span>
-</div>
-<div style="max-width:960px;margin:-1rem auto 1.5rem;text-align:right;padding:0 0.75rem;">
-  <span id="syncStatus" style="font-size:0.7rem;color:var(--muted);">⟳ Connessione…</span>
-</div>
+<div class="sync-row"><span id="syncStatus">⟳ Caricamento…</span></div>
 
-<div class="table-scroll">
-<table>
-  <thead>
-    <tr class="row-macro">
-      <th class="th-empty" rowspan="1"></th>
-      <th class="th-tacito" colspan="4">Tacito 23</th>
-      <th class="th-adriana" colspan="2">Adriana 5</th>
-    </tr>
-    <tr class="row-stanza" id="stanzaHeaderRow">
-      <th class="th-stanza-empty">Voce</th>
-    </tr>
-  </thead>
-  <tbody id="tableBody"></tbody>
-</table>
-</div>
+<div id="dashboard"></div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
+// ── CONFIG ───────────────────────────────────────────────────────────────────
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAZMQnJ6Cp8KbBJU_knZS3X3nQ_v2XgTKGgp51JC5prhaRcrZmyovzuuXNLaSSZd6G/exec";
-const DEFAULT_TS = new Date(2025, 2, 14).getTime(); // 14 marzo 2025
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const ONE_WEEK_MS  = 7  * 24 * 60 * 60 * 1000;
+const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 
-const ITEMS = [
-  "Bordo finestra",
-  "Capelli/macchie sul suolo",
-  "Carta igienica",
-  "Coperta di riserva",
-  "Cuscini di riserva",
-  "Luci funzionanti",
-  "Macchie su muri",
-  "Polvere bordo letto",
-  "Polvere sopra porte",
-  "Polvere su ripiani",
-  "Polvere termosifone",
-  "Pulizia caffè/bollitore",
-  "Pulizia finestre",
-  "Pulizia intorno armadio",
-  "Ragnatele angoli",
-  "Sovracoperte",
+const STANZE_6 = [
+  { id: "t1", label: "1",  cls: "tacito",  macro: "tacito" },
+  { id: "t2", label: "2",  cls: "tacito",  macro: "tacito" },
+  { id: "t3", label: "3",  cls: "tacito",  macro: "tacito" },
+  { id: "t4", label: "4",  cls: "tacito",  macro: "tacito" },
+  { id: "a1", label: "A1", cls: "adriana", macro: "adriana" },
+  { id: "a2", label: "A2", cls: "adriana", macro: "adriana" },
+];
+const STANZE_COMUNE = [
+  { id: "tacito", label: "Tacito", cls: "comune", macro: "comune-tacito" },
+  { id: "adriana", label: "Adriana", cls: "comune", macro: "comune-adriana" },
 ];
 
-const STANZE = [
-  { id: "t1", label: "1",  cls: "tacito"  },
-  { id: "t2", label: "2",  cls: "tacito"  },
-  { id: "t3", label: "3",  cls: "tacito"  },
-  { id: "t4", label: "4",  cls: "tacito"  },
-  { id: "a1", label: "A1", cls: "adriana" },
-  { id: "a2", label: "A2", cls: "adriana" },
+// ── SECTIONS ─────────────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id: "sett_stanze",
+    title: "Verifica settimanale stanze",
+    icon: "🛏",
+    freq: "Settimanale",
+    freqCls: "freq-weekly",
+    threshold: ONE_WEEK_MS,
+    stanze: STANZE_6,
+    macroLabels: { tacito: "Tacito 23", adriana: "Adriana 5" },
+    items: [
+      "Bordo finestra","Capelli/macchie sul suolo","Carta igienica",
+      "Composizione letto","Coperta di riserva","Cuscini di riserva",
+      "Luci funzionanti","Macchie su muri","Polvere bordo letto",
+      "Polvere sopra porte","Polvere su ripiani","Polvere termosifone",
+      "Pulizia caffè/bollitore","Pulizia finestre","Pulizia intorno armadio",
+      "Ragnatele angoli","Sovracoperte",
+    ],
+  },
+  {
+    id: "sett_comune",
+    title: "Verifica settimanale area comune",
+    icon: "🏠",
+    freq: "Settimanale",
+    freqCls: "freq-weekly",
+    threshold: ONE_WEEK_MS,
+    stanze: STANZE_COMUNE,
+    macroLabels: { "comune-tacito": "Tacito", "comune-adriana": "Adriana" },
+    items: [
+      "Aceto","Caffè","Candeggina","Carta igienica","Fabuloso",
+      "Finestre","Livello magazzino biancheria","Sgrassatore",
+      "Viacal","Welcome kit","Zucchero",
+    ],
+  },
+  {
+    id: "mens_stanze",
+    title: "Verifica mensile stanze",
+    icon: "🔍",
+    freq: "Mensile",
+    freqCls: "freq-monthly",
+    threshold: ONE_MONTH_MS,
+    stanze: STANZE_6,
+    macroLabels: { tacito: "Tacito 23", adriana: "Adriana 5" },
+    items: [
+      "Dietro al letto","Funzionamento lavandini/doccia/doccini",
+      "Pulizia filtri aria condizionata","Pulizia telecomandi",
+      "Sopra armadi","Stato topper e coprimaterasso",
+    ],
+  },
+  {
+    id: "mens_comune",
+    title: "Verifica mensile area comune",
+    icon: "🧹",
+    freq: "Mensile",
+    freqCls: "freq-monthly",
+    threshold: ONE_MONTH_MS,
+    stanze: STANZE_COMUNE,
+    macroLabels: { "comune-tacito": "Tacito", "comune-adriana": "Adriana" },
+    items: [
+      "Bordo finestra","Filtro caraffa","Polvere su mobili",
+      "Polvere termosifone","Ragnatele",
+    ],
+  },
 ];
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-// state[stanzaId][itemIndex] = { ts: timestamp }
-let state = {};
+// state[sectionId][stanzaId][itemIndex] = { ts: number|null }
+const state = {};
 
 function initStateDefaults() {
-  STANZE.forEach(st => {
-    if (!state[st.id]) state[st.id] = {};
-    ITEMS.forEach((_, i) => {
-      if (state[st.id][i] === undefined) state[st.id][i] = { ts: DEFAULT_TS };
+  SECTIONS.forEach(sec => {
+    if (!state[sec.id]) state[sec.id] = {};
+    sec.stanze.forEach(st => {
+      if (!state[sec.id][st.id]) state[sec.id][st.id] = {};
+      sec.items.forEach((_, i) => {
+        if (state[sec.id][st.id][i] === undefined)
+          state[sec.id][st.id][i] = { ts: null };
+      });
     });
   });
 }
 
-// ── GOOGLE SHEETS ────────────────────────────────────────────────────────────
-function showStatus(msg, isError) {
+// ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
+function showSync(msg, err) {
   const el = document.getElementById("syncStatus");
   el.textContent = msg;
-  el.style.color = isError ? "var(--red)" : "var(--muted)";
+  el.style.color = err ? "var(--red)" : "var(--muted)";
 }
 
 async function loadFromSheet() {
-  showStatus("⟳ Caricamento…", false);
+  showSync("⟳ Caricamento…", false);
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=read`, { mode: "cors" });
-    const rows = await res.json(); // [[stanza, item, ts], ...]
+    const rows = await res.json();
     rows.forEach(row => {
-      const [stId, item, ts] = row;
-      const i = ITEMS.indexOf(item);
-      if (i === -1 || !STANZE.find(s => s.id === stId)) return;
-      if (!state[stId]) state[stId] = {};
-      state[stId][i] = { ts: Number(ts) };
+      // key format: sectionId|stanzaId|itemIndex
+      const [key, ts] = row;
+      if (!key) return;
+      const parts = key.split("|");
+      if (parts.length !== 3) return;
+      const [secId, stId, iStr] = parts;
+      const i = parseInt(iStr);
+      if (!state[secId] || !state[secId][stId]) return;
+      state[secId][stId][i] = { ts: ts === "" || !ts ? null : Number(ts) };
     });
-    initStateDefaults();
-    showStatus("✓ Sincronizzato", false);
+    showSync("✓ Sincronizzato", false);
   } catch(e) {
-    initStateDefaults();
-    showStatus("⚠ Offline — dati locali", true);
+    showSync("⚠ Offline", true);
   }
 }
 
-async function writeToSheet(stId, itemIdx, ts) {
-  const item = ITEMS[itemIdx];
-  const url = `${APPS_SCRIPT_URL}?action=write&stanza=${encodeURIComponent(stId)}&item=${encodeURIComponent(item)}&ts=${ts}`;
+async function writeToSheet(secId, stId, i, ts) {
+  const key = `${secId}|${stId}|${i}`;
+  const url = `${APPS_SCRIPT_URL}?action=write&stanza=${encodeURIComponent(key)}&item=_&ts=${ts === null ? "" : ts}`;
   try {
     await fetch(url, { mode: "cors" });
-    showStatus("✓ Salvato", false);
+    showSync("✓ Salvato", false);
   } catch(e) {
-    showStatus("⚠ Errore salvataggio", true);
+    showSync("⚠ Errore salvataggio", true);
   }
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function isStale(c) { return c.ts && (Date.now() - c.ts) > ONE_WEEK_MS; }
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function isStale(c, threshold) { return c.ts && (Date.now() - c.ts) > threshold; }
+function isEmpty(c) { return !c.ts; }
 
 function formatDate(ts) {
   if (!ts) return "—";
@@ -341,99 +402,336 @@ function formatDate(ts) {
   return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
 }
 
-function getCellEl(stId, i) { return document.getElementById(`c_${stId}_${i}`); }
+function ageLabel(ts, threshold) {
+  if (!ts) return { text: "Non rilevata", cls: "age-empty" };
+  const diff = Date.now() - ts;
+  if (diff <= threshold * 0.5) return { text: "Recente", cls: "age-ok" };
+  if (diff <= threshold) return { text: "In scadenza", cls: "age-warn" };
+  const days = Math.floor(diff / (24*60*60*1000));
+  return { text: `Scaduta da ${days}g`, cls: "age-late" };
+}
 
-function refreshCell(stId, i) {
-  const td = getCellEl(stId, i);
+// Oldest ts in a section (to show section-level age)
+function sectionOldestTs(sec) {
+  let oldest = Infinity;
+  let hasAny = false;
+  sec.stanze.forEach(st => {
+    sec.items.forEach((_, i) => {
+      const c = state[sec.id][st.id][i];
+      if (c.ts) { hasAny = true; oldest = Math.min(oldest, c.ts); }
+    });
+  });
+  return hasAny ? oldest : null;
+}
+
+// % of cells that are fresh (have ts and not stale)
+function sectionProgress(sec) {
+  let total = 0, ok = 0;
+  sec.stanze.forEach(st => {
+    sec.items.forEach((_, i) => {
+      total++;
+      const c = state[sec.id][st.id][i];
+      if (c.ts && !isStale(c, sec.threshold)) ok++;
+    });
+  });
+  return total ? ok / total : 0;
+}
+
+function sectionBarCls(pct, sec) {
+  if (pct === 0) return "bar-empty";
+  // check if any cell is stale
+  let anyStale = false;
+  sec.stanze.forEach(st => sec.items.forEach((_, i) => {
+    if (isStale(state[sec.id][st.id][i], sec.threshold)) anyStale = true;
+  }));
+  if (anyStale) return "bar-late";
+  if (pct < 1) return "bar-warn";
+  return "bar-ok";
+}
+
+// Which columns (stanza ids) need attention in a section
+function staleCols(sec) {
+  return sec.stanze.filter(st =>
+    sec.items.some((_, i) => {
+      const c = state[sec.id][st.id][i];
+      return !c.ts || isStale(c, sec.threshold);
+    })
+  );
+}
+
+// ── CELL RENDER ───────────────────────────────────────────────────────────────
+function cellClass(c, st, sec, needsAttn) {
+  const stale = isStale(c, sec.threshold);
+  const empty = isEmpty(c);
+  let cls = `td-cell ${st.cls}`;
+  if (stale) cls += " stale";
+  else if (!empty) cls += " done";
+  else cls += " empty-cell";
+  if (needsAttn) cls += " needs-attention";
+  return cls;
+}
+
+function cellIcon(c, sec) {
+  if (isEmpty(c)) return "·";
+  return isStale(c, sec.threshold) ? "✕" : "✓";
+}
+
+function stanzaHeaderColor(sec, st) {
+  const cells = sec.items.map((_, i) => state[sec.id][st.id][i]);
+  const allEmpty = cells.every(c => isEmpty(c));
+  const anyStale = cells.some(c => isStale(c, sec.threshold));
+  const allFresh = cells.every(c => !isEmpty(c) && !isStale(c, sec.threshold));
+  if (allEmpty) return { bg: "", color: "" }; // default
+  if (anyStale) return { bg: var_red_light(), color: "var(--red)" };
+  if (allFresh) return { bg: "var(--green-light)", color: "var(--green)" };
+  return { bg: "var(--amber-light)", color: "var(--amber)" };
+}
+function var_red_light() { return "var(--red-light)"; }
+
+function refreshStanzaHeaders(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  sec.stanze.forEach(st => {
+    const th = document.getElementById(`th_${secId}_${st.id}`);
+    if (!th) return;
+    const { bg, color } = stanzaHeaderColor(sec, st);
+    th.style.background = bg;
+    th.style.color = color;
+  });
+}
+
+function refreshCell(secId, stId, i) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  const st = sec.stanze.find(s => s.id === stId);
+  const td = document.getElementById(`cell_${secId}_${stId}_${i}`);
   if (!td) return;
-  const c = state[stId][i];
-  const st = STANZE.find(s => s.id === stId);
-  const stale = isStale(c);
-  td.className = `td-cell ${st.cls} done${stale ? " stale" : ""}`;
-  td.querySelector(".cell-check").textContent = stale ? "✕" : "✓";
+  const c = state[secId][stId][i];
+  const stale_cols = staleCols(sec).map(s => s.id);
+  td.className = cellClass(c, st, sec, stale_cols.includes(stId));
+  td.querySelector(".cell-check").textContent = cellIcon(c, sec);
+  const ck = td.querySelector(".cell-check");
+  if (isEmpty(c)) {
+    ck.style.background = "transparent";
+    ck.style.border = "2px solid var(--border)";
+    ck.style.color = "var(--border)";
+  } else {
+    ck.style.background = "";
+    ck.style.border = "";
+    ck.style.color = "";
+  }
   td.querySelector(".cell-date").textContent = formatDate(c.ts);
 }
 
-// ── INTERACTIONS ─────────────────────────────────────────────────────────────
-function tapCell(stId, i) {
+function tapCell(secId, stId, i) {
   const ts = Date.now();
-  state[stId][i].ts = ts;
-  refreshCell(stId, i);
-  updateProgress();
-  writeToSheet(stId, i, ts);
+  state[secId][stId][i].ts = ts;
+  const sec = SECTIONS.find(s => s.id === secId);
+  sec.stanze.forEach(st => sec.items.forEach((_, j) => refreshCell(secId, st.id, j)));
+  refreshStanzaHeaders(secId);
+  updateCard(secId);
+  writeToSheet(secId, stId, i, ts);
 }
 
-function resetStanza(stId) {
-  ITEMS.forEach((_, i) => {
-    state[stId][i] = { ts: DEFAULT_TS };
-    writeToSheet(stId, i, DEFAULT_TS);
+function resetSection(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  sec.stanze.forEach(st => {
+    sec.items.forEach((_, i) => {
+      state[secId][st.id][i] = { ts: null };
+      writeToSheet(secId, st.id, i, null);
+    });
   });
-  ITEMS.forEach((_, i) => refreshCell(stId, i));
-  updateProgress();
+  sec.stanze.forEach(st => sec.items.forEach((_, i) => refreshCell(secId, st.id, i)));
+  refreshStanzaHeaders(secId);
+  updateCard(secId);
 }
 
-// ── UI UPDATES ───────────────────────────────────────────────────────────────
-function updateProgress() {
-  const okStanze = STANZE.filter(st =>
-    ITEMS.every((_, i) => !isStale(state[st.id][i]))
-  ).length;
-  const total = STANZE.length;
-  const pct = Math.round(okStanze / total * 100);
-  document.getElementById("progressFill").style.width = pct + "%";
-  document.getElementById("progressCount").textContent = `${okStanze} / ${total} stanze ok`;
+// ── CARD UPDATE ───────────────────────────────────────────────────────────────
+function updateCard(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  const pct = sectionProgress(sec);
+  const fill = document.getElementById(`bar_${secId}`);
+  const barCls = sectionBarCls(pct, sec);
+  fill.style.width = Math.round(pct * 100) + "%";
+  fill.className = `card-bar-fill ${barCls}`;
+
+  const oldest = sectionOldestTs(sec);
+  const age = ageLabel(oldest, sec.threshold);
+  const ageEl = document.getElementById(`age_${secId}`);
+  ageEl.textContent = age.text;
+  ageEl.className = `card-age ${age.cls}`;
+
+  const sc = staleCols(sec);
+  const subEl = document.getElementById(`sub_${secId}`);
+  if (sc.length > 0) {
+    subEl.textContent = "⚠ Da verificare: " + sc.map(s => s.label).join(", ");
+    subEl.className = "card-sub sub-warn";
+  } else if (pct === 1) {
+    subEl.textContent = "✓ Tutto in ordine";
+    subEl.className = "card-sub";
+    subEl.style.color = "var(--green)";
+  } else {
+    subEl.textContent = "";
+    subEl.className = "card-sub";
+    subEl.style.color = "";
+  }
 }
 
-function refreshAll() {
-  STANZE.forEach(st => ITEMS.forEach((_, i) => refreshCell(st.id, i)));
-  updateProgress();
+function updateAllCards() {
+  SECTIONS.forEach(sec => updateCard(sec.id));
 }
 
-// ── BUILD DOM ────────────────────────────────────────────────────────────────
-function build() {
-  const hrow = document.getElementById("stanzaHeaderRow");
-  STANZE.forEach(st => {
+// ── BUILD DOM ─────────────────────────────────────────────────────────────────
+function buildMacroHeaders(sec, thead) {
+  const macroRow = document.createElement("tr");
+  macroRow.className = "row-macro";
+  const emptyTh = document.createElement("th");
+  emptyTh.className = "th-empty";
+  macroRow.appendChild(emptyTh);
+
+  // Group stanze by macro
+  const groups = [];
+  let cur = null;
+  sec.stanze.forEach(st => {
+    if (!cur || cur.macro !== st.macro) {
+      cur = { macro: st.macro, count: 1 };
+      groups.push(cur);
+    } else { cur.count++; }
+  });
+
+  groups.forEach(g => {
+    const th = document.createElement("th");
+    th.colSpan = g.count;
+    th.className = `th-${g.macro}`;
+    th.textContent = sec.macroLabels[g.macro] || g.macro;
+    macroRow.appendChild(th);
+  });
+  thead.appendChild(macroRow);
+}
+
+function buildSection(sec) {
+  const card = document.createElement("div");
+  card.className = "section-card";
+  card.id = `card_${sec.id}`;
+
+  // ─ Card header (clickable bar)
+  const header = document.createElement("div");
+  header.className = "card-header";
+  header.innerHTML = `
+    <div class="card-top">
+      <div class="card-title-group">
+        <span class="card-icon">${sec.icon}</span>
+        <span class="card-title">${sec.title}</span>
+        <span class="card-freq ${sec.freqCls}">${sec.freq}</span>
+      </div>
+      <div class="card-meta">
+        <span class="card-age age-empty" id="age_${sec.id}">—</span>
+        <button class="toggle-btn" id="toggle_${sec.id}">▾</button>
+      </div>
+    </div>
+    <div class="card-bar-wrap">
+      <div class="card-bar-fill bar-empty" id="bar_${sec.id}" style="width:0%"></div>
+    </div>
+    <div class="card-sub" id="sub_${sec.id}"></div>
+  `;
+  card.appendChild(header);
+
+  // ─ Checklist panel
+  const panel = document.createElement("div");
+  panel.className = "checklist-panel";
+  panel.id = `panel_${sec.id}`;
+
+  // Table
+  const scrollWrap = document.createElement("div");
+  scrollWrap.className = "table-scroll";
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+
+  buildMacroHeaders(sec, thead);
+
+  // Stanza header row
+  const stanzaRow = document.createElement("tr");
+  stanzaRow.className = "row-stanza";
+  const labelTh = document.createElement("th");
+  labelTh.className = "th-stanza-empty";
+  labelTh.textContent = "Voce";
+  stanzaRow.appendChild(labelTh);
+  sec.stanze.forEach(st => {
     const th = document.createElement("th");
     th.className = `th-stanza ${st.cls}`;
-    th.innerHTML = `<div class="stanza-name-row">${st.label}</div>`;
-    hrow.appendChild(th);
+    th.id = `th_${sec.id}_${st.id}`;
+    th.textContent = st.label;
+    stanzaRow.appendChild(th);
   });
+  thead.appendChild(stanzaRow);
+  table.appendChild(thead);
 
-  const tbody = document.getElementById("tableBody");
-  ITEMS.forEach((item, i) => {
+  // Body
+  const tbody = document.createElement("tbody");
+  const staleIds = staleCols(sec).map(s => s.id);
+  sec.items.forEach((item, i) => {
     const tr = document.createElement("tr");
     tr.className = "data-row";
     const tdLabel = document.createElement("td");
     tdLabel.className = "td-label";
     tdLabel.textContent = item;
     tr.appendChild(tdLabel);
-    STANZE.forEach(st => {
-      const c = state[st.id][i];
-      const stale = isStale(c);
+    sec.stanze.forEach(st => {
+      const c = state[sec.id][st.id][i];
       const td = document.createElement("td");
-      td.id = `c_${st.id}_${i}`;
-      td.className = `td-cell ${st.cls} done${stale ? " stale" : ""}`;
+      td.id = `cell_${sec.id}_${st.id}_${i}`;
+      td.className = cellClass(c, st, sec, staleIds.includes(st.id));
+      const ckStyle = isEmpty(c) ? 'style="background:transparent;border:2px solid var(--border);color:var(--border)"' : '';
       td.innerHTML = `
         <div class="cell-inner">
-          <div class="cell-check">${stale ? "✕" : "✓"}</div>
+          <div class="cell-check" ${ckStyle}>${cellIcon(c, sec)}</div>
           <div class="cell-date">${formatDate(c.ts)}</div>
-        </div>
-      `;
-      td.addEventListener("click", () => tapCell(st.id, i));
+        </div>`;
+      td.addEventListener("click", () => tapCell(sec.id, st.id, i));
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
+  table.appendChild(tbody);
+  scrollWrap.appendChild(table);
+  panel.appendChild(scrollWrap);
+
+  // Footer
+  const footer = document.createElement("div");
+  footer.className = "panel-footer";
+  footer.innerHTML = `<button class="reset-btn" onclick="resetSection('${sec.id}')">↺ Reset</button>`;
+  panel.appendChild(footer);
+  card.appendChild(panel);
+
+  // Toggle logic
+  header.addEventListener("click", () => {
+    const isOpen = panel.classList.contains("open");
+    panel.classList.toggle("open", !isOpen);
+    const btn = document.getElementById(`toggle_${sec.id}`);
+    btn.classList.toggle("open", !isOpen);
+    btn.textContent = isOpen ? "▾" : "✕";
+  });
+
+  document.getElementById("dashboard").appendChild(card);
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-setInterval(refreshAll, 60000);
+setInterval(() => {
+  SECTIONS.forEach(sec => {
+    sec.stanze.forEach(st => sec.items.forEach((_, i) => refreshCell(sec.id, st.id, i)));
+    refreshStanzaHeaders(sec.id);
+    updateCard(sec.id);
+  });
+}, 60000);
 
 (async () => {
   initStateDefaults();
-  build();
-  updateProgress();
+  SECTIONS.forEach(buildSection);
+  updateAllCards();
   await loadFromSheet();
-  refreshAll();
+  SECTIONS.forEach(sec => {
+    sec.stanze.forEach(st => sec.items.forEach((_, i) => refreshCell(sec.id, st.id, i)));
+    refreshStanzaHeaders(sec.id);
+  });
+  updateAllCards();
 })();
 </script>
 </body>
