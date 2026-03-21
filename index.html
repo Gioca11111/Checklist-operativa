@@ -206,6 +206,28 @@ td.td-cell:active { filter: brightness(0.88); }
 /* Highlight stale column */
 td.td-cell.needs-attention { outline: 2px solid var(--red); outline-offset: -2px; }
 
+/* Tap flash animation */
+@keyframes cellFlash {
+  0%   { transform: scale(1);    opacity: 1; }
+  30%  { transform: scale(1.18); opacity: 0.85; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.cell-check.flash { animation: cellFlash 0.35s ease; }
+
+/* First-time hint */
+.tap-hint {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.45rem;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.8;
+}
+td.td-cell { position: relative; }
+
 .cell-inner {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 0.18rem; padding: 0.4rem 0.15rem; height: 52px;
@@ -368,15 +390,14 @@ async function loadFromSheet() {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=read`, { mode: "cors" });
     const rows = await res.json();
     rows.forEach(row => {
-      // key format: sectionId|stanzaId|itemIndex
       const [key, ts] = row;
       if (!key) return;
       const parts = key.split("|");
       if (parts.length !== 3) return;
       const [secId, stId, iStr] = parts;
-      const i = parseInt(iStr);
-      if (!state[secId] || !state[secId][stId]) return;
-      state[secId][stId][i] = { ts: ts === "" || !ts ? null : Number(ts) };
+      const i = parseInt(iStr, 10);
+      if (!state[secId] || !state[secId][stId] || Number.isNaN(i)) return;
+      state[secId][stId][i] = { ts: ts ? Number(ts) : null };
     });
     showSync("✓ Sincronizzato", false);
   } catch(e) {
@@ -386,10 +407,12 @@ async function loadFromSheet() {
 
 async function writeToSheet(secId, stId, i, ts) {
   const key = `${secId}|${stId}|${i}`;
-  const url = `${APPS_SCRIPT_URL}?action=write&stanza=${encodeURIComponent(key)}&item=_&ts=${ts === null ? "" : ts}`;
+  const url = `${APPS_SCRIPT_URL}?action=write&key=${encodeURIComponent(key)}&ts=${encodeURIComponent(ts ?? "")}`;
   try {
-    await fetch(url, { mode: "cors" });
-    showSync("✓ Salvato", false);
+    const res = await fetch(url, { mode: "cors" });
+    const data = await res.json();
+    if (data.ok) showSync("✓ Salvato", false);
+    else showSync("⚠ Errore salvataggio", true);
   } catch(e) {
     showSync("⚠ Errore salvataggio", true);
   }
@@ -524,9 +547,35 @@ function refreshCell(secId, stId, i) {
   td.querySelector(".cell-date").textContent = formatDate(c.ts);
 }
 
+// Track if hint has been dismissed
+let hintDismissed = false;
+try { hintDismissed = !!localStorage.getItem("mazal23_hint"); } catch(e) {}
+
 function tapCell(secId, stId, i) {
   const ts = Date.now();
   state[secId][stId][i].ts = ts;
+
+  // Flash animation on the tapped cell's check icon
+  const td = document.getElementById(`cell_${secId}_${stId}_${i}`);
+  if (td) {
+    const ck = td.querySelector(".cell-check");
+    ck.classList.remove("flash");
+    void ck.offsetWidth; // reflow to restart animation
+    ck.classList.add("flash");
+    ck.addEventListener("animationend", () => ck.classList.remove("flash"), { once: true });
+  }
+
+  // Dismiss hint on first tap
+  if (!hintDismissed) {
+    hintDismissed = true;
+    try { localStorage.setItem("mazal23_hint", "1"); } catch(e) {}
+    document.querySelectorAll(".tap-hint").forEach(el => {
+      el.style.transition = "opacity 0.4s";
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 400);
+    });
+  }
+
   const sec = SECTIONS.find(s => s.id === secId);
   sec.stanze.forEach(st => sec.items.forEach((_, j) => refreshCell(secId, st.id, j)));
   refreshStanzaHeaders(secId);
@@ -620,14 +669,16 @@ function buildSection(sec) {
   header.className = "card-header";
   header.innerHTML = `
     <div class="card-top">
-      <div class="card-title-group">
+      <div class="card-left">
         <span class="card-icon">${sec.icon}</span>
-        <span class="card-title">${sec.title}</span>
-        <span class="card-freq ${sec.freqCls}">${sec.freq}</span>
+        <div class="card-text">
+          <span class="card-title">${sec.title}</span>
+          <span class="card-freq ${sec.freqCls}">${sec.freq}</span>
+        </div>
       </div>
-      <div class="card-meta">
-        <span class="card-age age-empty" id="age_${sec.id}">—</span>
+      <div class="card-right">
         <button class="toggle-btn" id="toggle_${sec.id}">▾</button>
+        <span class="card-age age-empty" id="age_${sec.id}">—</span>
       </div>
     </div>
     <div class="card-bar-wrap">
@@ -705,12 +756,26 @@ function buildSection(sec) {
   card.appendChild(panel);
 
   // Toggle logic
+  let firstOpen = true;
   header.addEventListener("click", () => {
     const isOpen = panel.classList.contains("open");
     panel.classList.toggle("open", !isOpen);
     const btn = document.getElementById(`toggle_${sec.id}`);
     btn.classList.toggle("open", !isOpen);
     btn.textContent = isOpen ? "▾" : "✕";
+
+    // Show hint on first open, only if never tapped
+    if (!isOpen && firstOpen && !hintDismissed) {
+      firstOpen = false;
+      // Add hint to first cell of first data row
+      const firstCell = document.querySelector(`#panel_${sec.id} td.td-cell`);
+      if (firstCell && !firstCell.querySelector(".tap-hint")) {
+        const hint = document.createElement("span");
+        hint.className = "tap-hint";
+        hint.textContent = "tocca per aggiornare";
+        firstCell.appendChild(hint);
+      }
+    }
   });
 
   document.getElementById("dashboard").appendChild(card);
