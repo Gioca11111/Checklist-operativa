@@ -43,8 +43,33 @@ body {
 .header-line { width: 50px; height: 2px; background: var(--gold); margin: 0.7rem auto 0; }
 
 /* ── SYNC ── */
-.sync-row { max-width: 700px; margin: 0 auto 1.5rem; text-align: right; }
+.sync-row { max-width: 700px; margin: 0 auto 0.5rem; text-align: right; }
 #syncStatus { font-size: 0.68rem; color: var(--muted); }
+
+/* ── OPERATORE ── */
+.operator-row {
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.operator-row label { letter-spacing: 0.05em; }
+.operator-row input {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.3rem 0.55rem;
+  width: 64px;
+  background: var(--warm-white);
+  color: var(--ink);
+  text-transform: uppercase;
+}
+.operator-row input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
 
 /* ── SECTION CARD (dashboard bar) ── */
 .section-card {
@@ -244,9 +269,37 @@ td.empty-cell .cell-check {
   color: var(--border); font-size: 10px;
 }
 
-.cell-date { font-size: 0.55rem; color: var(--muted); text-align: center; line-height: 1.2; min-height: 1.2em; }
+.cell-date {
+  font-size: 0.55rem; color: var(--muted); text-align: center; line-height: 1.2; min-height: 1.2em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
 td.done .cell-date { color: var(--green); }
 td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
+
+/* Note button (top-right corner of each cell) */
+.cell-note-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 9px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.22;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.cell-note-btn.has-note {
+  opacity: 1;
+  background: var(--amber-light);
+}
 
 /* Panel footer */
 .panel-footer {
@@ -273,6 +326,11 @@ td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
 
 <div class="sync-row"><span id="syncStatus">⟳ Caricamento…</span></div>
 
+<div class="operator-row">
+  <label for="operatoreInput">Operatore</label>
+  <input type="text" id="operatoreInput" maxlength="4" placeholder="ES. RA">
+</div>
+
 <div id="dashboard"></div>
 
 <script>
@@ -280,6 +338,11 @@ td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAZMQnJ6Cp8KbBJU_knZS3X3nQ_v2XgTKGgp51JC5prhaRcrZmyovzuuXNLaSSZd6G/exec";
 const ONE_WEEK_MS  = 7  * 24 * 60 * 60 * 1000;
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+// Token condiviso con lo script Apps Script (vedi Code.gs).
+// Cambialo con una stringa segreta a tua scelta e imposta lo stesso valore
+// come proprietà "TOKEN" nello script Apps Script collegato al foglio.
+const SYNC_TOKEN = "CAMBIA-QUESTO-TOKEN-SEGRETO";
 
 const STANZE_6 = [
   { id: "t1", label: "1",  cls: "tacito",  macro: "tacito" },
@@ -361,7 +424,7 @@ const SECTIONS = [
 ];
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-// state[sectionId][stanzaId][itemIndex] = { ts: number|null }
+// state[sectionId][stanzaId][itemIndex] = { ts: number|null, note: string|null, by: string|null }
 const state = {};
 
 function initStateDefaults() {
@@ -371,10 +434,36 @@ function initStateDefaults() {
       if (!state[sec.id][st.id]) state[sec.id][st.id] = {};
       sec.items.forEach((_, i) => {
         if (state[sec.id][st.id][i] === undefined)
-          state[sec.id][st.id][i] = { ts: null };
+          state[sec.id][st.id][i] = { ts: null, note: null, by: null };
       });
     });
   });
+}
+
+// ── OPERATORE ────────────────────────────────────────────────────────────────
+function getOperatore() {
+  try { return (localStorage.getItem("mazal23_operatore") || "").trim(); }
+  catch(e) { return ""; }
+}
+
+function setupOperatoreInput() {
+  const input = document.getElementById("operatoreInput");
+  input.value = getOperatore();
+  input.addEventListener("change", () => {
+    const val = input.value.trim().toUpperCase();
+    input.value = val;
+    try { localStorage.setItem("mazal23_operatore", val); } catch(e) {}
+  });
+}
+
+// ── HTML ESCAPE ──────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
@@ -387,17 +476,26 @@ function showSync(msg, err) {
 async function loadFromSheet() {
   showSync("⟳ Caricamento…", false);
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=read`, { mode: "cors" });
+    const url = `${APPS_SCRIPT_URL}?action=read&token=${encodeURIComponent(SYNC_TOKEN)}`;
+    const res = await fetch(url, { mode: "cors" });
     const rows = await res.json();
+    if (rows && rows.ok === false) {
+      showSync("⚠ " + (rows.error || "Errore lettura"), true);
+      return;
+    }
     rows.forEach(row => {
-      const [key, ts] = row;
+      const [key, ts, note, by] = row;
       if (!key) return;
-      const parts = key.split("|");
+      const parts = String(key).split("|");
       if (parts.length !== 3) return;
       const [secId, stId, iStr] = parts;
       const i = parseInt(iStr, 10);
       if (!state[secId] || !state[secId][stId] || Number.isNaN(i)) return;
-      state[secId][stId][i] = { ts: ts ? Number(ts) : null };
+      state[secId][stId][i] = {
+        ts: ts ? Number(ts) : null,
+        note: note ? String(note) : null,
+        by: by ? String(by) : null,
+      };
     });
     showSync("✓ Sincronizzato", false);
   } catch(e) {
@@ -405,27 +503,39 @@ async function loadFromSheet() {
   }
 }
 
-async function writeToSheet(secId, stId, i, ts) {
+async function writeToSheet(secId, stId, i, ts, note, by) {
   const key = `${secId}|${stId}|${i}`;
-  const url = `${APPS_SCRIPT_URL}?action=write&key=${encodeURIComponent(key)}&ts=${encodeURIComponent(ts ?? "")}`;
+  const params = new URLSearchParams({
+    action: "write",
+    key,
+    ts: ts != null ? String(ts) : "",
+    note: note || "",
+    by: by || "",
+    token: SYNC_TOKEN,
+  });
+  const url = `${APPS_SCRIPT_URL}?${params.toString()}`;
   try {
     const res = await fetch(url, { mode: "cors" });
     const data = await res.json();
     if (data.ok) showSync("✓ Salvato", false);
-    else showSync("⚠ Errore salvataggio", true);
+    else showSync("⚠ " + (data.error || "Errore salvataggio"), true);
   } catch(e) {
     showSync("⚠ Errore salvataggio", true);
   }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function isStale(c, threshold) { return c.ts && (Date.now() - c.ts) > threshold; }
+function isStale(c, threshold) { return !!(c.ts && (Date.now() - c.ts) > threshold); }
 function isEmpty(c) { return !c.ts; }
 
 function formatDate(ts) {
   if (!ts) return "—";
   const d = new Date(ts);
   return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+
+function cellDateText(c) {
+  return formatDate(c.ts) + (c.by ? " · " + c.by : "");
 }
 
 function ageLabel(ts, threshold) {
@@ -508,11 +618,10 @@ function stanzaHeaderColor(sec, st) {
   const anyStale = cells.some(c => isStale(c, sec.threshold));
   const allFresh = cells.every(c => !isEmpty(c) && !isStale(c, sec.threshold));
   if (allEmpty) return { bg: "", color: "" }; // default
-  if (anyStale) return { bg: var_red_light(), color: "var(--red)" };
+  if (anyStale) return { bg: "var(--red-light)", color: "var(--red)" };
   if (allFresh) return { bg: "var(--green-light)", color: "var(--green)" };
   return { bg: "var(--amber-light)", color: "var(--amber)" };
 }
-function var_red_light() { return "var(--red-light)"; }
 
 function refreshStanzaHeaders(secId) {
   const sec = SECTIONS.find(s => s.id === secId);
@@ -544,7 +653,18 @@ function refreshCell(secId, stId, i) {
     ck.style.border = "";
     ck.style.color = "";
   }
-  td.querySelector(".cell-date").textContent = formatDate(c.ts);
+  td.querySelector(".cell-date").textContent = cellDateText(c);
+
+  const noteBtn = td.querySelector(".cell-note-btn");
+  if (noteBtn) {
+    if (c.note) {
+      noteBtn.classList.add("has-note");
+      noteBtn.title = c.note;
+    } else {
+      noteBtn.classList.remove("has-note");
+      noteBtn.title = "Aggiungi nota";
+    }
+  }
 }
 
 // Track if hint has been dismissed
@@ -552,43 +672,71 @@ let hintDismissed = false;
 try { hintDismissed = !!localStorage.getItem("mazal23_hint"); } catch(e) {}
 
 function tapCell(secId, stId, i) {
-  const ts = Date.now();
-  state[secId][stId][i].ts = ts;
-
-  // Flash animation on the tapped cell's check icon
-  const td = document.getElementById(`cell_${secId}_${stId}_${i}`);
-  if (td) {
-    const ck = td.querySelector(".cell-check");
-    ck.classList.remove("flash");
-    void ck.offsetWidth; // reflow to restart animation
-    ck.classList.add("flash");
-    ck.addEventListener("animationend", () => ck.classList.remove("flash"), { once: true });
-  }
-
-  // Dismiss hint on first tap
-  if (!hintDismissed) {
-    hintDismissed = true;
-    try { localStorage.setItem("mazal23_hint", "1"); } catch(e) {}
-    document.querySelectorAll(".tap-hint").forEach(el => {
-      el.style.transition = "opacity 0.4s";
-      el.style.opacity = "0";
-      setTimeout(() => el.remove(), 400);
-    });
-  }
-
   const sec = SECTIONS.find(s => s.id === secId);
+  const cell = state[secId][stId][i];
+  const isFresh = cell.ts && !isStale(cell, sec.threshold);
+
+  if (isFresh) {
+    // Cella già spuntata e non scaduta: un secondo tap chiede conferma per svuotarla
+    // (utile per correggere un tap per errore). La nota viene conservata.
+    if (!confirm("Svuotare questa voce? Data e operatore verranno rimossi (la nota resta).")) {
+      return;
+    }
+    cell.ts = null;
+    cell.by = null;
+  } else {
+    // Cella vuota o scaduta: il tap la segna come fatta ora (comportamento originale)
+    cell.ts = Date.now();
+    cell.by = getOperatore() || null;
+
+    // Flash animation
+    const td = document.getElementById(`cell_${secId}_${stId}_${i}`);
+    if (td) {
+      const ck = td.querySelector(".cell-check");
+      ck.classList.remove("flash");
+      void ck.offsetWidth; // reflow to restart animation
+      ck.classList.add("flash");
+      ck.addEventListener("animationend", () => ck.classList.remove("flash"), { once: true });
+    }
+
+    // Dismiss hint on first tap
+    if (!hintDismissed) {
+      hintDismissed = true;
+      try { localStorage.setItem("mazal23_hint", "1"); } catch(e) {}
+      document.querySelectorAll(".tap-hint").forEach(el => {
+        el.style.transition = "opacity 0.4s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 400);
+      });
+    }
+  }
+
   sec.stanze.forEach(st => sec.items.forEach((_, j) => refreshCell(secId, st.id, j)));
   refreshStanzaHeaders(secId);
   updateCard(secId);
-  writeToSheet(secId, stId, i, ts);
+  writeToSheet(secId, stId, i, cell.ts, cell.note, cell.by);
+}
+
+function editNote(evt, secId, stId, i) {
+  evt.stopPropagation();
+  const cell = state[secId][stId][i];
+  const input = prompt("Nota per questa voce (lascia vuoto per rimuoverla):", cell.note || "");
+  if (input === null) return; // annullato
+  const trimmed = input.trim();
+  cell.note = trimmed ? trimmed : null;
+  refreshCell(secId, stId, i);
+  writeToSheet(secId, stId, i, cell.ts, cell.note, cell.by);
 }
 
 function resetSection(secId) {
   const sec = SECTIONS.find(s => s.id === secId);
+  if (!confirm(`Sicuro di voler azzerare TUTTA la sezione "${sec.title}"?\nVerranno rimossi date, operatori e note di tutte le voci. L'operazione non è reversibile.`)) {
+    return;
+  }
   sec.stanze.forEach(st => {
     sec.items.forEach((_, i) => {
-      state[secId][st.id][i] = { ts: null };
-      writeToSheet(secId, st.id, i, null);
+      state[secId][st.id][i] = { ts: null, note: null, by: null };
+      writeToSheet(secId, st.id, i, null, null, null);
     });
   });
   sec.stanze.forEach(st => sec.items.forEach((_, i) => refreshCell(secId, st.id, i)));
@@ -734,12 +882,16 @@ function buildSection(sec) {
       td.id = `cell_${sec.id}_${st.id}_${i}`;
       td.className = cellClass(c, st, sec, staleIds.includes(st.id));
       const ckStyle = isEmpty(c) ? 'style="background:transparent;border:2px solid var(--border);color:var(--border)"' : '';
+      const noteCls = c.note ? "cell-note-btn has-note" : "cell-note-btn";
+      const noteTitle = c.note ? escapeHtml(c.note) : "Aggiungi nota";
       td.innerHTML = `
         <div class="cell-inner">
           <div class="cell-check" ${ckStyle}>${cellIcon(c, sec)}</div>
-          <div class="cell-date">${formatDate(c.ts)}</div>
-        </div>`;
+          <div class="cell-date">${escapeHtml(cellDateText(c))}</div>
+        </div>
+        <button type="button" class="${noteCls}" title="${noteTitle}">📝</button>`;
       td.addEventListener("click", () => tapCell(sec.id, st.id, i));
+      td.querySelector(".cell-note-btn").addEventListener("click", (evt) => editNote(evt, sec.id, st.id, i));
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -792,6 +944,7 @@ setInterval(() => {
 
 (async () => {
   initStateDefaults();
+  setupOperatoreInput();
   SECTIONS.forEach(buildSection);
   updateAllCards();
   await loadFromSheet();
