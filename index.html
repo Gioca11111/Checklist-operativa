@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Operativo Gestionale </title>
-<link href="https://script.google.com/macros/s/AKfycbxi14KOsQYMom5z6b698jUZuPrZ6W49O64kxaJnmeROE8amZh9P1UZ-Q4ITvwwS-Ulx/exec">
+<title>Operativo Pulizie · Mazal 23</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --cream: #F5F0E8;
@@ -276,30 +276,21 @@ td.empty-cell .cell-check {
 td.done .cell-date { color: var(--green); }
 td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
 
-/* Note button (top-right corner of each cell) */
-.cell-note-btn {
+/* Note indicator (small dot, top-right corner of each cell).
+   Puramente decorativo: per aggiungere/modificare una nota si tiene
+   premuta la cella (~0.5s), evitando sovrapposizioni con la spunta. */
+.cell-note-dot {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 15px;
-  height: 15px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  font-size: 9px;
-  line-height: 1;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.22;
-  cursor: pointer;
-  touch-action: manipulation;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  pointer-events: none;
+  display: none;
 }
-.cell-note-btn.has-note {
-  opacity: 1;
-  background: var(--amber-light);
-}
+td.has-note .cell-note-dot { display: block; }
 
 /* Panel footer */
 .panel-footer {
@@ -320,7 +311,7 @@ td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
 
 <div class="header">
   <div class="header-label">Mazal 23 · Hospitality</div>
-  <h1>Operativo <span>Gestionale</span></h1>
+  <h1>Operativo <span>Pulizie</span></h1>
   <div class="header-line"></div>
 </div>
 
@@ -335,7 +326,7 @@ td.stale .cell-date { color: var(--red) !important; font-weight: 700; }
 
 <script>
 // ── CONFIG ───────────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxi14KOsQYMom5z6b698jUZuPrZ6W49O64kxaJnmeROE8amZh9P1UZ-Q4ITvwwS-Ulx/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAZMQnJ6Cp8KbBJU_knZS3X3nQ_v2XgTKGgp51JC5prhaRcrZmyovzuuXNLaSSZd6G/exec";
 const ONE_WEEK_MS  = 7  * 24 * 60 * 60 * 1000;
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -604,6 +595,7 @@ function cellClass(c, st, sec, needsAttn) {
   else if (!empty) cls += " done";
   else cls += " empty-cell";
   if (needsAttn) cls += " needs-attention";
+  if (c.note) cls += " has-note";
   return cls;
 }
 
@@ -654,17 +646,7 @@ function refreshCell(secId, stId, i) {
     ck.style.color = "";
   }
   td.querySelector(".cell-date").textContent = cellDateText(c);
-
-  const noteBtn = td.querySelector(".cell-note-btn");
-  if (noteBtn) {
-    if (c.note) {
-      noteBtn.classList.add("has-note");
-      noteBtn.title = c.note;
-    } else {
-      noteBtn.classList.remove("has-note");
-      noteBtn.title = "Aggiungi nota";
-    }
-  }
+  td.title = c.note || "";
 }
 
 // Track if hint has been dismissed
@@ -717,8 +699,7 @@ function tapCell(secId, stId, i) {
   writeToSheet(secId, stId, i, cell.ts, cell.note, cell.by);
 }
 
-function editNote(evt, secId, stId, i) {
-  evt.stopPropagation();
+function editNote(secId, stId, i) {
   const cell = state[secId][stId][i];
   const input = prompt("Nota per questa voce (lascia vuoto per rimuoverla):", cell.note || "");
   if (input === null) return; // annullato
@@ -726,6 +707,41 @@ function editNote(evt, secId, stId, i) {
   cell.note = trimmed ? trimmed : null;
   refreshCell(secId, stId, i);
   writeToSheet(secId, stId, i, cell.ts, cell.note, cell.by);
+}
+
+// Tocco breve = tapCell (segna/svuota). Pressione prolungata (~0.5s) = nota.
+// Funziona sia su touch che con il mouse.
+function attachCellHandlers(td, secId, stId, i) {
+  const LONG_PRESS_MS = 550;
+  let pressTimer = null;
+  let longPressTriggered = false;
+
+  const start = () => {
+    longPressTriggered = false;
+    pressTimer = setTimeout(() => {
+      longPressTriggered = true;
+      editNote(secId, stId, i);
+    }, LONG_PRESS_MS);
+  };
+  const cancel = () => {
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  };
+
+  td.addEventListener("touchstart", start, { passive: true });
+  td.addEventListener("touchend", cancel);
+  td.addEventListener("touchmove", cancel);
+  td.addEventListener("touchcancel", cancel);
+  td.addEventListener("mousedown", start);
+  td.addEventListener("mouseup", cancel);
+  td.addEventListener("mouseleave", cancel);
+
+  td.addEventListener("click", () => {
+    if (longPressTriggered) {
+      longPressTriggered = false;
+      return; // non eseguire anche il tap dopo una pressione prolungata
+    }
+    tapCell(secId, stId, i);
+  });
 }
 
 function resetSection(secId) {
@@ -882,16 +898,14 @@ function buildSection(sec) {
       td.id = `cell_${sec.id}_${st.id}_${i}`;
       td.className = cellClass(c, st, sec, staleIds.includes(st.id));
       const ckStyle = isEmpty(c) ? 'style="background:transparent;border:2px solid var(--border);color:var(--border)"' : '';
-      const noteCls = c.note ? "cell-note-btn has-note" : "cell-note-btn";
-      const noteTitle = c.note ? escapeHtml(c.note) : "Aggiungi nota";
+      td.title = c.note || "";
       td.innerHTML = `
         <div class="cell-inner">
           <div class="cell-check" ${ckStyle}>${cellIcon(c, sec)}</div>
           <div class="cell-date">${escapeHtml(cellDateText(c))}</div>
         </div>
-        <button type="button" class="${noteCls}" title="${noteTitle}">📝</button>`;
-      td.addEventListener("click", () => tapCell(sec.id, st.id, i));
-      td.querySelector(".cell-note-btn").addEventListener("click", (evt) => editNote(evt, sec.id, st.id, i));
+        <span class="cell-note-dot"></span>`;
+      attachCellHandlers(td, sec.id, st.id, i);
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
